@@ -459,46 +459,59 @@ const QUESTIONS = [
         return topKey;
     }
 
-    function showResult(personalityKey) {
-        const p = PERSONALITIES[personalityKey];
-        const details = PERSONALITY_DETAILS[personalityKey] || { shortIntro: "简介", detail: "解析", dimensions: [5,5,5,5,5,5] };
-        if (!p) { alert("结果错误，请重试"); location.reload(); return; }
-  const resultHTML = `
-    <div class="result-card">
-        <div class="result-image">
-            <img src="${details.image}" alt="${p.name}" style="width:100%; height:100%; object-fit:cover; border-radius:20px;">
-            <div style="display:none; align-items:center; justify-content:center; width:100%; height:100%; background:#f0d5bc; border-radius:50%; font-size:3rem;">${p.emoji}</div>
+  function showResult(personalityKey) {
+    const p = PERSONALITIES[personalityKey];
+    const details = PERSONALITY_DETAILS[personalityKey] || { shortIntro: "简介", detail: "解析", dimensions: [5,5,5,5,5,5] };
+    if (!p) { alert("结果错误，请重试"); location.reload(); return; }
+    
+    // 构建结果 HTML（不含按钮，按钮稍后用 JS 添加）
+    const resultHTML = `
+        <div class="result-card">
+            <div class="result-image">
+                <img src="${details.image}" alt="${p.name}" style="width:100%; height:100%; object-fit:cover; border-radius:20px;">
+                <div style="display:none; align-items:center; justify-content:center; width:100%; height:100%; background:#f0d5bc; border-radius:50%; font-size:3rem;">${p.emoji}</div>
+            </div>
+            <div class="result-title">${p.name}</div>
+            <div class="result-short-intro">${details.shortIntro}</div>
+            <div class="radar-container"><canvas id="radarCanvas" width="300" height="300"></canvas></div>
+            <div class="result-detail">${details.detail}</div>
+            <div id="actionButtons" style="display: flex; justify-content: center; gap: 16px; margin-top: 20px;"></div>
         </div>
-        <div class="result-title">${p.name}</div>
-        <div class="result-short-intro">${details.shortIntro}</div>
-        <div class="radar-container"><canvas id="radarCanvas" width="300" height="300"></canvas></div>
-        <div class="result-detail">${details.detail}</div>
-        <div>
-            <button class="share-btn" id="shareBtn">📸 分享结果</button>
-            <button class="retake-btn" id="retakeBtn">🔄 重新测试</button>
-        </div>
-    </div>
-`;
-        quizBody.innerHTML = resultHTML;
-        setTimeout(() => {
-    const shareBtn = document.getElementById('shareBtn');
-    if (shareBtn) {
-        shareBtn.style.display = 'inline-block';
-        shareBtn.style.visibility = 'visible';
-        shareBtn.style.opacity = '1';
+    `;
+    quizBody.innerHTML = resultHTML;
+    
+    // 动态创建并添加按钮
+    const actionDiv = document.getElementById('actionButtons');
+    if (actionDiv) {
+        // 分享按钮
+        const shareBtn = document.createElement('button');
+        shareBtn.className = 'share-btn';
+        shareBtn.id = 'shareBtn';
+        shareBtn.textContent = '📸 分享结果';
+        shareBtn.style.cssText = 'background:#2d3e2b; color:white; border:none; padding:12px 24px; border-radius:40px; font-weight:600; cursor:pointer; margin:0;';
+        shareBtn.addEventListener('click', () => {
+            const text = `【BDTI邦多利人格】我已经确诊为 ${p.name} ${p.emoji}\n你也来试试吧！网站地址:https://yukinamnt.github.io/BDTI-Test/`;
+            navigator.clipboard.writeText(text).then(() => alert("诊断结果已复制，可以发送给医生了哦~")).catch(() => alert("手动截图分享吧"));
+        });
+        
+        // 重新测试按钮
+        const retakeBtn = document.createElement('button');
+        retakeBtn.className = 'retake-btn';
+        retakeBtn.id = 'retakeBtn';
+        retakeBtn.textContent = '🔄 重新测试';
+        retakeBtn.style.cssText = 'background:#ffe0c4; color:#b45a2e; border:none; padding:12px 24px; border-radius:40px; font-weight:600; cursor:pointer; margin:0;';
+        retakeBtn.addEventListener('click', () => { testStarted = false; renderIntro(); });
+        
+        actionDiv.appendChild(shareBtn);
+        actionDiv.appendChild(retakeBtn);
     } else {
-        const btnDiv = document.querySelector('.result-card > div:last-child');
-        if (btnDiv && !document.getElementById('shareBtn')) {
-            const newBtn = document.createElement('button');
-            newBtn.className = 'share-btn';
-            newBtn.id = 'shareBtn';
-            newBtn.textContent = '📸 分享结果';
-            btnDiv.insertBefore(newBtn, btnDiv.firstChild);
-        }
+        console.error("找不到 actionButtons 容器");
     }
-}, 50);
-        console.log(resultHTML);
-        const ctx = document.getElementById('radarCanvas').getContext('2d');
+    
+    // 雷达图绘制
+    const canvas = document.getElementById('radarCanvas');
+    if (canvas) {
+        const ctx = canvas.getContext('2d');
         if (radarChart) radarChart.destroy();
         radarChart = new Chart(ctx, {
             type: 'radar',
@@ -512,14 +525,5 @@ const QUESTIONS = [
             },
             options: { scales: { r: { beginAtZero: true, max: 10, ticks: { stepSize: 2 } } }, plugins: { tooltip: { enabled: true }, legend: { display: false } } }
         });
-        document.getElementById("shareBtn")?.addEventListener("click", () => {
-            const text = `【BDTI邦多利人格】我已经确诊为 ${p.name} ${p.emoji}\n你也来试试吧！网站地址:https://yukinamnt.github.io/BDTI-Test/`;
-            navigator.clipboard.writeText(text).then(() => alert("诊断结果已复制，可以发送给医生了哦~")).catch(() => alert("手动截图分享吧"));
-        });
-        document.getElementById("retakeBtn")?.addEventListener("click", () => { testStarted = false; renderIntro(); });
     }
-
-    renderIntro();
-</script>
-</body>
-</html>
+}
