@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>BDTI · 邦多利人格测试 By yukinamnt AKA Wiz4Rd</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: linear-gradient(145deg, #2b1b3a 0%, #1a0f2a 100%);
+            font-family: system-ui, -apple-system, 'Segoe UI', 'PingFang SC', Roboto, 'Helvetica Neue', sans-serif;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            max-width: 650px;
+            width: 100%;
+            margin: 0 auto;
+            background: rgba(255, 248, 240, 0.98);
+            border-radius: 48px;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #c44569);
+            padding: 28px 20px;
+            text-align: center;
+            color: white;
+        }
+        .header h1 { font-size: 2.2rem; letter-spacing: -1px; font-weight: 800; }
+        .header p { opacity: 0.9; margin-top: 8px; font-size: 0.9rem; }
+        .quiz-body { padding: 28px 24px 32px; }
+        .progress-area { margin-bottom: 28px; }
+        .progress-text { display: flex; justify-content: space-between; font-size: 0.8rem; color: #c44569; font-weight: 600; margin-bottom: 8px; }
+        .progress-bar-bg { background-color: #f0d5bc; border-radius: 40px; height: 10px; overflow: hidden; }
+        .progress-fill { background: #ff8c42; width: 0%; height: 100%; border-radius: 40px; transition: width 0.2s ease; }
+        .question-text { font-size: 1.5rem; font-weight: 700; line-height: 1.3; color: #2d1b0e; margin-bottom: 28px; }
+        .options-list { display: flex; flex-direction: column; gap: 14px; margin-bottom: 32px; }
+        .option-btn {
+            background: white; border: 2px solid #ffcf9a; border-radius: 60px; padding: 14px 20px;
+            font-size: 1rem; font-weight: 500; text-align: left; color: #4a2c1a;
+            transition: all 0.2s; cursor: pointer;
+        }
+        .option-btn:hover { background: #fff2e4; border-color: #ffa559; transform: scale(0.98); }
+        .nav-buttons { display: flex; justify-content: space-between; gap: 12px; }
+        .nav-btn {
+            background: #f0e1d4; border: none; padding: 12px 20px; border-radius: 40px;
+            font-weight: 600; font-size: 0.9rem; cursor: pointer; flex: 1; text-align: center; color: #7b4a2a;
+        }
+        .nav-btn.primary { background: #ff8c42; color: white; box-shadow: 0 4px 8px rgba(255, 140, 66, 0.3); }
+        .nav-btn.primary:hover { background: #e6762c; }
+        .nav-btn.primary:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; }
+        .result-card { text-align: center; animation: fadeIn 0.4s ease; }
+        .result-image {
+            width: 120px; height: 120px; margin: 0 auto 16px; background: #f0d5bc;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 3rem; box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        .result-title { font-size: 1.8rem; font-weight: 800; background: linear-gradient(135deg, #ff7e2e, #c44569); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 8px; }
+        .result-short-intro { font-size: 1rem; color: #b45a2e; margin-bottom: 16px; font-style: italic; }
+        .result-detail { background: #fff1e6; padding: 20px; border-radius: 36px; margin: 20px 0; font-size: 1rem; line-height: 1.5; color: #3e2a1f; text-align: left; }
+        .radar-container { max-width: 300px; margin: 20px auto; }
+        canvas { width: 100%; height: auto; }
+        .share-btn { background: #2d3e2b; color: white; border: none; padding: 12px 24px; border-radius: 40px; font-weight: 600; margin: 8px 8px; cursor: pointer; }
+        .retake-btn { background: #ffe0c4; color: #b45a2e; border: none; padding: 12px 24px; border-radius: 40px; font-weight: 600; cursor: pointer; }
+        .footer-note { font-size: 0.7rem; text-align: center; color: #c29a76; padding: 16px 0 12px; border-top: 1px solid #f0d5bc; margin-top: 24px; }
+        .intro-text { text-align: center; margin-bottom: 28px; line-height: 1.6; color: #4a2c1a; }
+        .start-btn { background: #ff8c42; color: white; border: none; padding: 14px 28px; border-radius: 60px; font-size: 1.2rem; font-weight: bold; cursor: pointer; display: block; width: 80%; margin: 20px auto 0; transition: 0.2s; }
+        .start-btn:hover { background: #e6762c; transform: scale(0.98); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        button { font-family: inherit; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+<div class="container" id="app">
+    <div class="header"><h1>🎸 BDTI 测试</h1><p>BanG Dreamer也该拥有自己的人格测试。</p></div>
+    <div class="quiz-body" id="quizBody"></div>
+    <div class="footer-note">✨ 纯属娱乐，请勿深究 | BiliBili @yukinamnt</div>
+</div>
+<script>
+    // --------------------------------------------------------------
+    // 人格基础信息（与用户原版一致）
+    // --------------------------------------------------------------
+    const PERSONALITIES = {
+        MYKN: { name: "MYKN（爱猫人士）", emoji: "🐱", desc: "冷娇猫奴，认真有压力。完美主义，对认可的人温柔。梗：好强的压" },
+        LISA: { name: "LISA（猫猫嘴）", emoji: "💄", desc: "全企划妈妈感最强，兼职打工，友希那的人妻。温柔可靠，团队粘合剂。" },
+        AAO: { name: "AA-O!（未响应者）", emoji: "📱", desc: "社交达人，喊口号一呼零应，玩社交媒体，情绪价值提供者。" },
+        OTae: { name: "O-Tae（花园警察）", emoji: "🐰", desc: "电波系，会用牙弹吉他，天然我行我素。梗：花园警察出动" },
+        HLSY: { name: "#HLSY!（乐天派）", emoji: "⭐", desc: "全企划最富有，口号Happy Lucky Smile Yeah，绝对的乐观主义者。" },
+        HKN: { name: "HK-N（哈卡奈）", emoji: "🎭", desc: "戏剧女王，天天喊哈卡奈，台词华丽，男女通吃。" },
+        MASK: { name: "MASK（川崎车主）", emoji: "🏍️", desc: "狂野鼓手，骑摩托车，反差萌喜欢小动物，重情义。" },
+        CHU2: { name: "CHU-2（楚平芳）", emoji: "🐱", desc: "天才制作人，哈气小猫，矮子，Roselia扭曲粉，高傲但脆弱。" },
+        LOCK: { name: "LOCK（单推人）", emoji: "🎸", desc: "Popipa头号粉丝，热血努力家，吉他英雄，永不服输。" },
+        AMITA: { name: "A-MITA （玩山彩）", emoji: "🌸", desc: "元气偶像，修哇修哇修车梗，空手道劈瓦，努力家。" },
+        ARISA: { name: "ARISA（仓库大王）", emoji: "🚗", desc: "傲娇吐槽役，严肃点梗，红色丰田MRS，网络宅。" },
+        MMSK: { name: "M-MSK（米歇尔）", emoji: "🐻", desc: "扮演米歇尔，美咲（没笑）梗，常识人，吐槽担当。" },
+        TMRIN: { name: "TM-RIN（小企鹅）", emoji: "🐧", desc: "内心敏感，咕咕嘎嘎，喜欢捡石头，烤羊梗，情感浓烈。" },
+        UIKA: { name: "UIKA（三角箭）", emoji: "🌟", desc: "爽朗吉他主唱，丰川祥子的小姨，隐藏的执着。" },
+        OBIV: { name: "OBIV（一串字母）", emoji: "💼", desc: "责任感强，打工赚钱，电话客服，自我牺牲，表面冷酷。" },
+        TKSM: { name: "TKSM（邦高祖）", emoji: "✨", desc: "元气满满，kirakira dokidoki，永不放弃，星星追寻者。" },
+        MRAN: { name: "MRAN（煮烂了）", emoji: "🌹", desc: "外冷内热，傲娇，叛逆的红挑染，花道世家，重情义。" },
+        SOYO: { name: "SOYO（点子王）", emoji: "🎻", desc: "表面温柔内心固执，渴望家庭温暖，操作型社交。" },
+        MOCA: { name: "MOCA（小毛力）", emoji: "🍞", desc: "慵懒毒舌但温柔，山吹面包房，记忆力好，有自己的节奏。" },
+        ANON: { name: "ANON（东京阿诺）", emoji: "👑", desc: "爱出风头，社交达人，虚荣但可爱，遇到困难会逃避，唐。" },
+        NYAM: { name: "NYAM（美妆博主）", emoji: "🎥", desc: "网红气质，好胜，网络冲浪高手，对粉丝热情。" },
+        EVE: { name: "EVE（武士道）", emoji: "⚔️", desc: "武士道！正直努力家，日式浪漫。" },
+        RUI: { name: "RUI（正论者）", emoji: "🎻", desc: "冷静学霸，正论暴击机，小提琴，曾经封闭内心。" },
+        SH1RO: { name: "SH1-RO（灵感菇）", emoji: "🦢", desc: "向后全速前进，憧憬前辈，内向但渴望成长，童话感。" },
+        HINA: { name: "HINA（天才）", emoji: "💕", desc: "天才，口头禅噜，最喜欢姐姐，说话直球，姐控。" },
+        KDHR: { name: "KDHR（老工）", emoji: "🎸", desc: "六边形战士，搞怪，冻龄女神，喜欢嗑冰川双子CP。" },
+        MGGM: { name: "MGGM（社长）", emoji: "👔", desc: "混沌制造者，爆典王，武装保卫中国市场，打破常规。" },
+        YKLS: { name: "YKLS", emoji: "💞", desc: "青梅竹马，老夫老妻，互相理解，反差互补。不必多言。" },
+        JTTY: { name: "JTTY（大蛇丸）", emoji: "🐍", desc: "八岐大蛇，年轻被争议，努力证明自己，与Liyuu有交集。" },
+        PJSK: { name: "：PJSK（啤酒烧烤）", emoji: "🎤", desc: "虚拟歌姬，跨次元，世界系。暗示你也许更适合隔壁烤！" },
+        WUDI: { name: "WD-DW（无敌大王）", emoji: "💪", desc: "中二自信爆棚，实则普通，搞笑担当。B站整活格式。" },
+        FIVEZ: { name: "5ZSR（五字神人）", emoji: "🔮", desc: "神秘网络迷因，乐子人，名字格式如“社恐小燐子”。" }
+    };
+
+    // 详细数据占位
+    const PERSONALITY_DETAILS = {
+    MYKN: { shortIntro: "我有觉悟", detail: "你像凑友希那一样，是完美主义的化身。对自己和团队要求极高，不允许任何瑕疵。外人看来你高冷严肃，甚至有点“压力怪”，但其实你只是对热爱的事物过于执着。在认可的人面前，你会卸下铠甲，展现出温柔甚至笨拙的一面——比如对猫咪毫无抵抗力，或者默默关心队友。你给人的印象是“好强的压”，但偶尔放松一下，把猫抱在怀里听首歌，也是可以的。", dimensions: [10,3,6,2,4,8], image: "mykn.PNG" },
+    LISA: { shortIntro: "大概是整个邦多利里最有妈妈感的了。", detail: "你就像今井莉莎一样，是团队里最可靠的存在。你情商高，善于照顾每个人的情绪，总能在关键时刻递上一杯水或一句安慰。你热爱时尚，也喜欢打工赚钱，独立又温柔。你与友希那的默契让人羡慕，那种“老夫老妻”般的互相理解是你最珍视的关系。你总在付出，但也别忘了照顾自己哦。", dimensions: [6,7,8,2,10,4], image: "mykn.PNG" },
+    AAO: { shortIntro: "AG超会弹的队长，虽然喊口号时永远一呼零应。", detail: "你就像上原绯玛丽一样，是朋友圈里的活跃分子。你热爱社交媒体，喜欢分享生活，哪怕点赞不多也乐此不疲。你性格开朗，容易相处，但偶尔会有点冒失，比如喊口号时没人响应（笑）。不过你从不气馁，总能用自己的热情感染身边的人。你是那种“虽然有点吵，但没了你就不习惯”的朋友。", dimensions: [4,8,7,5,6,3], image: "mykn.PNG" },
+    OTae: { shortIntro: "花园警察，出动！", detail: "你就像花园多惠一样，活在自己的世界里，有着独特的电波思维。你热爱音乐到可以用牙弹吉他，也喜欢兔子，常常因为过于天然而做出让人哭笑不得的事。你不受常规束缚，我行我素，但对音乐的热爱无比真挚。你是那种“奇怪但可爱”的存在，让人忍不住想照顾你。", dimensions: [5,5,6,7,4,9], image: "mykn.PNG" },
+    HLSY: { shortIntro: "HAPPY, LUCKY, SMILE, YEAH!", detail: "你就像弦卷心一样，拥有无穷无尽的乐观和行动力。你相信笑容可以解决一切问题，也真的能用钱和热情把不可能变成可能。你不在乎世俗规则，只在乎是否能让大家都开心。你曾经让来替补米歇尔的祥子感受到l 真正的快乐，这就是你的魔法。虽然你的钞能力有时让人震惊，但你的善良和单纯无人能及。", dimensions: [3,9,8,8,7,6], image: "mykn.PNG" },
+    HKN: { shortIntro: "啊~哈卡奈~", detail: "你就像濑田薰一样，是舞台上的焦点。你热爱戏剧化的表达，说话总像在念台词，动不动就“哈卡奈”（梦幻）。你老少通吃，气质优雅，但其实私下在千圣面前也可能是个普通人。你享受被注视的感觉，也懂得如何用魅力征服他人。你的人生就是一场永不落幕的演出。", dimensions: [4,8,7,6,5,8], image: "mykn.PNG" },
+    MASK: { shortIntro: "川崎250SS MACH I车主", detail: "你就像MASKING一样，外表狂野不羁，内心却柔软可爱。你骑着重型机车，打起鼓来像“狂犬”，但私下里却对可爱的事物毫无抵抗力，甚至是大和麻弥的粉丝。你重情重义，保护欲强，是朋友们的坚实后盾。你的反差萌让人欲罢不能——谁能想到那个帅气的大姐头，其实也会对着偶像海报傻笑呢？", dimensions: [8,5,6,6,8,9], image: "mykn.PNG" },
+    CHU2: { shortIntro: "气场比身高高的哈气小猫", detail: "你就像ChuChu一样，是才华横溢但脾气傲娇的小恶魔。你拥有顶尖的音乐制作能力，渴望被认可，但常常用高傲和攻击性来掩饰自己的脆弱。你是Roselia的扭曲粉——嘴上不承认，心里却崇拜得要命。你像一只哈气的小猫，炸毛的样子很可爱，但只要你愿意，也能展现出惊人的温柔。", dimensions: [9,4,5,8,3,8], image: "mykn.PNG" },
+    LOCK: { shortIntro: "Popipa头号单推人", detail: "- **详细解析**：你就像朝日六花一样，是永远充满干劲的努力家。你崇拜Popipa，梦想成为像她们一样的吉他英雄。你或许天赋不算顶尖，但你的热情和坚持让你不断进步。你有点社恐，但一聊到音乐就会眼睛发光。你相信“努力不会骗人”，哪怕跌倒也会立刻爬起来。你就是那种让人想为你加油的后辈。", dimensions: [8,4,6,3,6,3], image: "mykn.PNG" },
+    AMITA: { shortIntro: "会修车也会劈瓦的元气偶像。", detail: "你就像丸山彩一样，是永远在努力的偶像。你渴望被爱，容易哭但也容易坚强。你的“修哇修哇”空耳成了修车梗，但你从不介意，反而自嘲。你还有隐藏技能——劈瓦，反差感十足。你相信汗水不会辜负自己，哪怕跌倒也会笑着爬起来。你是那种让人忍不住想应援的可爱存在。", dimensions: [7,8,7,5,6,7], image: "mykn.PNG" },
+    ARISA: { shortIntro: "仓库里的大王。", detail: "你就像市谷有咲一样，是嘴硬心软的吐槽专家。你表面傲娇，动不动就吐槽，其实内心善良，还是个网络宅。你曾因为坐姿不端正被纱夜批评，从此“严肃点”成了你的标志。你是那种嘴上嫌弃，却会默默帮忙的好朋友。", dimensions: [6,5,6,7,5,7], image: "mykn.PNG" },
+    MMSK: { shortIntro: "没什么...只是想告诉你。", detail: "你就像奥泽美咲一样，是团队里的常识人和吐槽役。你扮演米歇尔，却总想摘掉头套说“我是美咲不是熊”。你在有咲严肃点之后，变成了没笑，因为你总是无奈地叹气。你隐藏着自己的温柔，不愿被当成吉祥物，但关键时刻你总会挺身而出。你是那种“累但靠谱”的朋友。", dimensions: [5,4,6,6,7,5], image: "mykn.PNG" },
+    TMRIN: { shortIntro: "普通和理所当然是什么呢？", detail: "你就像高松灯一样，是一个内心世界极其丰富的孩子。你表达困难，情感却浓烈得像岩浆。你喜欢捡石头、收集便利贴，用自己独特的方式感受世界。虽然你的歌声曾被调侃为“断气式唱歌”，还导致了烤羊一只，但你依然坚持表达自己。你是那种不擅长说话，却能用行动打动人心的人。", dimensions: [6,2,9,2,5,8], image: "mykn.PNG" },
+    UIKA: { shortIntro: "“Sumimi的初华”", detail: "你就像三角初华一样，外表爽朗阳光，内心却藏着深沉的执着。你是吉他主唱，充满星之魅力。你有一个特殊身份——丰川祥子的小姨，这让你对某些事格外上心。你看起来很温柔可靠，但一旦决定要追随什么，就会义无反顾。你是那种“笑着坚持”的人。", dimensions: [7,7,6,4,6,5], image: "mykn.PNG" },
+    OBIV: { shortIntro: "客服小祥为您服务", detail: "你就像丰川祥子一样，是那个默默扛起一切的人。你打工赚钱，做着电话客服，脸上永远是疲惫但礼貌的微笑。你表面冷酷，内心却藏着温柔和脆弱。你为了责任可以牺牲自己，但很少向人倾诉。你是那种“让人心疼却不愿示弱”的类型。", dimensions: [9,3,7,3,5,6], image: "mykn.PNG" },
+    TKSM: { shortIntro: "kirakira dokidoki，永不放弃的星星追寻者。", detail: "你就像户山香澄一样，是永远散发光芒的元气少女。你相信星星的力量，总是喊着“kirakira dokidoki”。你永不放弃，哪怕遇到挫折也能笑着爬起来。你或许有点冒失，但你的热情能感染所有人。你是那种“看到你就觉得世界美好”的存在。", dimensions: [6,9,8,5,7,4], image: "mykn.PNG" },
+    MRAN: { shortIntro: "叛逆的红挑染，花道世家的孤高之花", detail: "你就像美竹兰一样，是那种“嘴上说不要，身体很诚实”的傲娇。你染了一缕叛逆的红挑染，却出身花道世家，矛盾又迷人。你重情义，不轻易表露内心，但对朋友绝对忠诚。你追求自己的道路，不随波逐流。你是那种“越了解越让人心疼”的孤高之花。", dimensions: [7,4,7,5,6,8], image: "mykn.PNG" },
+    SOYO: { shortIntro: "月之森点子王", detail: "你就像长崎素世一样，是那种“看起来温柔，其实很有主见”的人。你擅长社交，能轻易获得他人好感，但你内心渴望稳定的归属感。你操作能力强，会为了让事情按自己希望的方向发展而默默努力。你表面大度，内心却可能因为小事纠结。你是那种“温柔但有底线”的人。", dimensions: [7,7,8,4,7,6], image: "mykn.PNG" },
+    MOCA: { shortIntro: "慵懒毒舌但温柔，山吹面包房常客，记忆力超好的旁观者。", detail: "你就像青叶摩卡一样，是那种“看起来懒懒散散，其实什么都懂”的人。你说话毒舌，但总能戳中要点；你记忆力超好，却选择性地记住面包和队友的黑历史。你温柔不张扬，喜欢在角落里观察一切，偶尔出手帮忙。你是那种“懒得理你，但你需要时我就在”的朋友。", dimensions: [3,4,6,5,6,7], image: "mykn.PNG" },
+    ANON: { shortIntro: "ANON TOKYO的ANON本人", detail: "你就像千早爱音一样，是那种“爱炫耀但又让人讨厌不起来”的人。你喜欢成为焦点，社交能力一流，但遇到真正的困难时会下意识逃避。你有点虚荣，但本质不坏，甚至有点可爱。你是那种“嘴上说‘看我的’，实际上需要别人拉一把”的类型。", dimensions: [4,9,6,7,4,7], image: "mykn.PNG" },
+    NYAM: { shortIntro: "扣你吉喵姆喵姆~", detail: "你就像祐天寺若麦一样，是那种“把网络当作第二生命”的人。你擅长经营社交媒体，喜欢被关注，好胜心强。你对粉丝极其热情，会努力回应每一个支持。你享受站在聚光灯下的感觉，也愿意为热度付出努力。你是那种“为了梦想可以拼尽全力”的网红型人格。", dimensions: [6,8,5,7,5,6], image: "mykn.PNG" },
+    EVE: { shortIntro: "武士道！", detail: "你就像若宫伊芙一样，是那种“把‘武士道’挂在嘴边”的正直之人。你努力、认真，相信正义和浪漫。你可能会因为过于正直而显得有点“轴”，但你的纯粹让人敬佩。你喜欢日式文化，连吃个面包都能联想到武士修行。你是那种“让人忍不住想喊‘Eve chan！’”的存在。", dimensions: [8,6,6,2,7,3], image: "mykn.PNG" },
+    RUI: { shortIntro: "家有金毛的正论暴击机", detail: "你就像八潮瑠唯一样，是那种“用逻辑武装自己”的人。你冷静、理性，擅长用正论击败一切感性发言。你曾经封闭内心，只用小提琴表达自己，后来逐渐学会与人相处。你是那种“看似冷漠，其实只是不知道怎么表达”的类型。", dimensions: [9,3,4,2,4,6], image: "mykn.PNG" },
+    SH1RO: { shortIntro: "小哥小哥", detail: "你就像仓田真白一样，是那种“一边害怕一边向前冲”的人。你内向、容易退缩，但内心极度渴望成长。你憧憬前辈，希望变得像她们一样耀眼。你常常坐着“向后全速前进”这种矛盾的事，但正是这种矛盾让你真实可爱。你是那种“需要被推一把才能起飞”的人。", dimensions: [6,3,8,3,5,7], image: "mykn.PNG" },
+    HINA: { shortIntro: "噜♬", detail: "你就像冰川日菜一样，是那种“聪明但KY（读不懂空气）”的天才。你说话直球，常常无心伤人却毫无自觉。你是姐控，最喜欢姐姐纱夜，但你的热情往往让姐姐想逃。你口头禅“噜♬”，可爱又烦人。你是那种“让人又爱又恨”的小恶魔。", dimensions: [8,7,5,8,4,8], image: "mykn.PNG" },
+    KDHR: { shortIntro: "冰川双子的CP头子", detail: "你就像工藤晴香一样，是那种“什么都能做好”的全能型人才。你专业、帅气又可爱，明明是个冰山美人，却喜欢搞怪不断。你最大的爱好是嗑冰川双子的CP，甚至不惜亲自下场产粮。你是那种“明明可以靠实力，却偏偏要靠梗”的有趣灵魂。", dimensions: [8,6,5,7,5,7], image: "mykn.PNG" },
+    MGGM: { shortIntro: "武装保卫中国市场！", detail: "你就像木谷高明一样，是那种“不按常理出牌”的混乱制造者。你金句频出，总是爆典，常常做出让所有人意想不到的决定。你曾武装保卫中国市场，救邦多利于危难之中。你是商业奇才，也是规则的破坏者。你是那种“让人又崇拜又害怕”的存在。", dimensions: [5,7,4,10,3,9], image: "mykn.PNG" },
+    YKLS: { shortIntro: "你可能只是喜欢磕小情侣罢了", detail: "也许你只是想像慈爱的老父亲一样看着，她们性格互补——一个高冷认真，一个温柔包容；一个压力山大，一个默默解压。她们的故事没有轰轰烈烈，只有细水长流的陪伴。BanG Dream也许就是这样美好的企划吧。", dimensions: [7,6,8,3,9,7], image: "mykn.PNG" },
+    JTTY: { shortIntro: "我不是恶魔。", detail: "你就像进藤天音一样，是那种“年纪轻轻却背负争议”的人。你被称为“八岐大蛇”，但你从未放弃，一直努力证明自己。你和Liyuu的交集让人津津乐道。你是那种“在质疑中成长，用实力回击”的倔强灵魂。", dimensions: [7,6,7,6,5,6], image: "mykn.PNG" },
+    PJSK: { shortIntro: "你可能来错地方了。", detail: "你得到了隐藏人格“Project Sekai”！看起来你对虚拟歌姬、电子合成音有着特别的偏好，甚至可能是个“烤批”（PJSK玩家）。你或许误入了邦邦的世界，但你的心属于那个由思念构成的“SEKAI”。没关系，邦多利的世界也欢迎你，只是下次测试记得选对入口哦。", dimensions: [5,5,7,6,4,8], image: "mykn.PNG" },
+    WUDI: { shortIntro: "五字神人的时代已经过去，现在是无敌大王的天下。", detail: "你得到了隐藏人格“无敌XX大王”！你是一个自信到中二的人，喜欢在名字里加上“无敌大王”，仿佛这样就能变强。虽然你是个平凡的普通人，但你的乐观和天赋让你成为大家的开心果。无敌大王的时代可以沸腾期待。	", dimensions: [4,8,6,9,5,9], image: "mykn.PNG" },
+    FIVEZ: { shortIntro: "鉴定为五字神人", detail: "你得到了隐藏人格“五字神人”！你是互联网迷因的化身，名字恰好是五个字。你热衷于整活，喜欢爆炸性交流，是邦多利区里的神秘力量。也许你是那种“现实中唯唯诺诺，网络上放飞自我”的人。", dimensions: [4,7,5,9,4,9], image: "mykn.PNG" }
+};
+
+    for (let k in PERSONALITIES) if (!PERSONALITY_DETAILS[k]) PERSONALITY_DETAILS[k] = { shortIntro: "简介", detail: "解析", dimensions: [5,5,5,5,5,5] };
+const SCORING = [
+        [["MOCA","RANA"], ["MYKN","OBIV"], ["AAO","ANON"], ["TMRIN","SH1RO"]],
+        [["LISA","YKLS"], ["OBIV"], ["MYKN","RUI","YKLS"], ["ARISA","HINA"]],
+        [["MYKN"], ["TMRIN"], ["RANA","MOCA","OTae"], ["CHU2"]],
+        [["MYKN","RUI"], ["LISA","YKLS"], ["ANON","KDHR"], ["SOYO","TMRIN","MMSK"]],
+        [["MYKN","MASK","CHU2"], ["TKSM","LISA","TMRIN"], ["HLSY","AAO"], ["EVE","ARISA"]],
+        [["LISA","EVE"], ["MYKN","OBIV"], ["TMRIN","SH1RO","JTTY"], ["ARISA","ANON"]],
+        [["HLSY","AAO","KDHR","OTae"], ["OBIV","EVE"], ["MOCA","MGGM"], ["MYKN","RUI"]],
+        [["AAO","ANON","NYAM"], ["LISA","SOYO"], ["TMRIN","LOCK","MOCA"], ["AAO","ANON","HLSY","HKN"]],
+        [["OBIV","MYKN","YKLS"], ["AAO","ANON"], ["RUI","LOCK"], ["MOCA","RANA","MGGM"]],
+        [["HLSY"], ["MYKN","YKLS"], ["TMRIN"], ["ANON"]],
+        [["HLSY","LOCK"], ["LISA","TMRIN"], ["MYKN","RUI"], ["ANON","AAO"]],
+        [["MYKN","LOCK"], ["MOCA","RANA"], ["AAO","ANON"], ["HLSY","TMRIN","JTTY"]],
+        [["MASK","CHU2"], ["AMITA","HLSY"], ["ARISA","ANON","KDHR","OTae"], ["LISA","MOCA"]],
+        [["TMRIN","SH1RO"], ["EVE","TKSM","HKN"], ["MOCA","SOYO"], ["ANON","AAO"]],
+        [["CHU2","MASK","RUI","UIKA"], ["MASK","MYKN","LOCK"], ["LISA","TMRIN"], ["HLSY","ANON"]],
+        [["MYKN","RUI"], ["MOCA","LISA"], ["AAO","LOCK"], ["MOCA","ANON","ARISA","KDHR"]],
+        [["RUI","CHU2"], ["MOCA","MYKN","MGGM"], ["ARISA","ANON","NYAM","MMSK"], ["EVE","SOYO"]],
+        [["MYKN","OBIV"], ["AAO","LISA"], ["RANA","MOCA","MGGM"], ["ANON","ARISA"]],
+        [["ARISA","MOCA"], ["AAO","ANON"], ["LOCK","MASK"], ["LISA","HLSY"]],
+        [["CHU2","MASK","RUI"], ["MASK","LOCK","MYKN"], ["LISA","TMRIN"], ["MOCA","RANA"]],
+        [["CHU2","ANON"], ["MOCA","RANA","MGGM"], ["HINA","ARISA"], ["AAO","ANON","NYAM"]],
+        [["MYKN","LOCK"], ["SOYO","MRAN"], ["HINA","CHU2"], ["TMRIN","SH1RO","JTTY"]],
+        [["LISA","SOYO"], ["AAO","ANON"], ["RANA","MOCA"], ["MYKN","TMRIN","YKLS"]],
+        [["LISA","EVE"], ["TMRIN","SH1RO"], ["RANA","OBIV"], ["TMRIN","SH1RO"]],
+        [["CHU2","MASK","RUI"], ["TKSM","LOCK","MYKN","UIKA"], ["HLSY","EVE"], ["LISA","SOYO"]],
+        [["MYKN","LOCK"], ["AAO","ANON"], ["MASK","CHU2"], ["RANA","MOCA"]],
+        [["MYKN","RUI","OBIV"], ["HLSY","TKSM","LOCK","HKN"], ["MOCA","RANA","TMRIN"], ["ANON","AAO","ARISA","KDHR"]],
+        [["OBIV","EVE"], ["LISA","MOCA"], ["RANA","ARISA","JTTY"], ["MYKN","RUI"]],
+        [["TKSM","HLSY"], ["TMRIN","SH1RO","JTTY"], ["MOCA","MRAN"], ["EVE","RUI"]],
+        [["ANON","AAO","KDHR","MMSK"], ["TMRIN","MASK"], ["MYKN","SOYO"], ["RUI","EVE"]]
+    ];
+
+const QUESTIONS = [
+        "周末早上8点，手机突然响了，你的第一反应是？",
+        "在咖啡店打工，遇到一位客人点单时犹豫了10分钟，你会？",
+        "你看到一只野猫，它会？",
+        "乐队排练时，有人总抢拍子，你会？",
+        "你最喜欢的音乐类型是？",
+        "你在Live现场，旁边的人应援棒甩到你头上了，你会？",
+        "听到一段空耳歌词，好像有点像“修哇修哇”，你会？",
+        "你最喜欢的社交方式是？",
+        "遇到困难时，你通常会？",
+        "你看到有人正在伤心，你会？",
+        "Live结束后，你一个人走在回家的夜路上，心里最可能想的是？",
+        "考试前一天晚上，你会？",
+        "如果你要组一个乐队，你会取什么风格的名字？",
+        "在路上遇到你很尊敬的音乐前辈，你会？",
+        "你更喜欢听哪种类型的歌曲？",
+        "练习时某个地方总是弹不好，你会？",
+        "你在社交平台上看到一个关于邦多利的争议帖子，你会？",
+        "你正在做一个重要的项目，但发现缺少关键资料，你会？",
+        "周末你更喜欢？",
+        "你更期待看到哪种形式的音乐表演？",
+        "你在手游里抽卡沉船了，你会？",
+        "你的演奏被前辈批评了，你会？",
+        "在一个陌生的城市迷路了，你会？",
+        "走在路上，前面的人突然摔倒了，你会？",
+        "你更容易被哪种角色吸引？",
+        "你最喜欢的乐队练习时间是？",
+        "当你在某些比较需要严肃的场合时，你会？",
+        "你的房间/书桌通常是？",
+        "你最喜欢的天气是？",
+        "睡觉前你通常会？"
+    ];
+
+    const OPTIONS = [
+        ["谁啊？不管他，继续睡", "立刻清醒，会不会是领导或者重要的事", "看一眼，不是诈骗就回拨", "假装没听见，蒙头继续"],
+        ["微笑等待，并推荐招牌饮品", "内心崩溃但脸上保持微笑", "直接说“请快点决定，后面有人在等”", "跟其他人小声吐槽"],
+        ["优雅地走过来蹭你的腿", "警惕地看着你，随时准备跑", "躺在阳光下懒洋洋地不理你", "突然对你哈气"],
+        ["直接指出来，要求重新再练习", "私下温和地提醒", "开玩笑说“你是不是太兴奋了”", "假装没听到，但心里默默记下"],
+        ["燃向摇滚", "温柔抒情", "电波洗脑", "经典老歌"],
+        ["笑着说“没事”，还帮他捡起来", "看他一眼，然后换到远一点的位置", "内心呐喊“好疼”，但表面什么也不说", "直接说“小心点啊”"],
+        ["觉得好有趣，跟着一起唱", "一脸疑惑，不知道在说什么", "觉得无聊，但不说", "认真纠正正确的发音"],
+        ["发社交平台，等大家点赞", "和好友一对一聊天，或者在群里活跃发言", "群里潜水，偶尔冒泡", "线下见面，一起玩"],
+        ["自己扛，不想麻烦别人", "向朋友求助", "先自己试试，不行再说", "直接放弃，换条路"],
+        ["走过去，用尽全力让他笑起来", "默默递一张纸巾，然后冷静地帮他分析原因、找出解决办法", "假装没看到，怕说错话", "拉他去吃好吃的，用美食治愈"],
+        ["今天太棒了，明年一定要再去！", "好累，但心里满满的", "如果刚才那首歌能再弹快一点就更完美了", "不知道有没有人拍到我的应援棒"],
+        ["熬夜把所有内容过一遍", "早早睡觉，相信自己的积累", "找同学一起复习，互相提问", "边听音乐边看，随缘"],
+        ["使用帅气的英文单词", "使用可爱的日文短语", "用奇怪的中文组合出来一个", "随便，队友定就好"],
+        ["紧张到说不出话，只敢远远看着", "上前打招呼，简单自我介绍", "假装没看到，事后后悔", "偷偷拍张照发到群里"],
+        ["节奏感强、电子合成音突出的曲子", "乐队演奏、有真实乐器感的摇滚", "旋律优美、歌词有诗意的抒情歌", "洗脑循环、听了想跳舞的流行电波歌"],
+        ["反复练那一小节，直到完美", "先练别的，回头再试", "找别人帮忙看看", "跳过，反正观众听不出来"],
+        ["理性回复，表达自己观点", "直接划走，不参与", "截图发给朋友吐槽", "直接举报"],
+        ["自己想办法找替代资料", "向同事/同学求助", "放弃，重新选一个项目", "抱怨运气不好"],
+        ["宅在家里打游戏/看动画", "出门逛街/看电影", "去Livehouse看演出", "和朋友聚餐"],
+        ["光影构成的形象", "乐手挥洒汗水", "歌手深情演唱", "无所谓形式"],
+        ["继续氪金，直到抽到为止", "佛系，随缘等下次", "卸载游戏，过几天又装回来", "直接发帖骂运营"],
+        ["虚心接受，回去加倍练习", "表面接受，心里不服", "当场反驳，说出自己想法", "沮丧，好几天不想碰乐器"],
+        ["用手机导航", "问一下路人", "随便走走，总能找到", "打电话给朋友求救"],
+        ["立刻上前扶起来", "心里想帮忙但不好意思过去", "假装没看到", "站在原地，不知道该怎么办"],
+        ["不是真人演出的存在，比如人工智能、精灵、或者声音带电子感的角色", "校园里的同龄人，为了梦想组建社团、一起奋斗的故事", "奇幻世界里的冒险者，有魔法和剑", "日常生活中的普通人，有温馨的互动"],
+        ["早上，头脑清醒", "下午，放学后", "晚上，有氛围", "随时，想练就练"],
+        ["一直保持沉稳", "始终保持热情的态度", "心不在焉或者随性", "会一不小心得意忘形"],
+        ["井井有条，每样东西都有固定位置", "有点乱，但自己能找到东西", "非常乱，几乎找不到东西", "极简，没什么东西"],
+        ["晴天，阳光明媚", "雨天，听着雨声很安心", "阴天，不冷不热", "雪天，浪漫"],
+        ["刷手机，直到睁不开眼", "听音乐/播客", "回想今天发生的事", "看书"]
+    ];
+
+    // --------------------------------------------------------------
+    // 辅助函数与测试状态
+    // --------------------------------------------------------------
+    function isMemeOption(qIdx, optIdx) {
+        const text = OPTIONS[qIdx][optIdx];
+        const memeKeywords = ["开玩笑", "奇怪的中文组合", "跳过，反正", "发帖骂运营", "得意忘形"];
+        return memeKeywords.some(kw => text.includes(kw));
+    }
+
+    let testStarted = false;
+    let userAnswers = new Array(30).fill(null);
+    let currentIndex = 0;
+    let scores = {};
+    const allPersonalityKeys = ["MYKN","LISA","AAO","OTae","HLSY","HKN","MASK","CHU2","LOCK","AMITA","ARISA","MMSK","TMRIN","UIKA","OBIV","TKSM","MRAN","SOYO","MOCA","ANON","NYAM","EVE","RUI","SH1RO","HINA","KDHR","MGGM","YKLS","JTTY"];
+    allPersonalityKeys.forEach(k => scores[k] = 0);
+    let virtualCount = 0;
+    let memeCount = 0;
+    let showExtraQuestion = false;
+    let extraAnswer = null;
+    let radarChart = null;
+
+    const quizBody = document.getElementById("quizBody");
+
+    function renderIntro() {
+        const introHTML = `
+            <div class="intro-text">
+                <p style="font-size:1.2rem; font-weight:bold;"> 欢迎参加 BDTI 邦多利人格测试</p>
+                <p>本测试共30题，根据你的选择将匹配出最适合你的邦多利角色人格。</p>
+                <p>题目均为日常情景，请凭第一感觉作答，无需过多思考。</p>
+                <p>✨ 纯属娱乐，请勿深究。 ✨</p>
+            </div>
+            <button class="start-btn" id="startTestBtn">开始测试 </button>
+        `;
+        quizBody.innerHTML = introHTML;
+        document.getElementById("startTestBtn").addEventListener("click", () => {
+            testStarted = true;
+            initTest();
+        });
+    }
+
+    function initTest() {
+        userAnswers.fill(null);
+        currentIndex = 0;
+        scores = {};
+        allPersonalityKeys.forEach(k => scores[k] = 0);
+        virtualCount = 0;
+        memeCount = 0;
+        showExtraQuestion = false;
+        extraAnswer = null;
+        renderQuestion();
+    }
+
+    function renderQuestion() {
+        if (currentIndex < 30) {
+            const q = QUESTIONS[currentIndex];
+            const opts = OPTIONS[currentIndex];
+            const selected = userAnswers[currentIndex];
+            const progressPercent = (currentIndex / 30) * 100;
+
+            let optionsHtml = "";
+            opts.forEach((opt, idx) => {
+                const isSelected = (selected === idx);
+                const styleBg = isSelected ? "background:#ffedd5; border-color:#ff8c42;" : "";
+                optionsHtml += `<button class="option-btn" style="${styleBg}" data-opt-index="${idx}">${String.fromCharCode(65+idx)}. ${opt}</button>`;
+            });
+
+            const template = `
+                <div class="progress-area">
+                    <div class="progress-text">
+                        <span>第 ${currentIndex+1} / 30 题</span>
+                        <span>BanG Dream Type Indicator</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-fill" style="width: ${progressPercent}%;"></div>
+                    </div>
+                </div>
+                <div class="question-text">${q}</div>
+                <div class="options-list" id="optionsList">
+                    ${optionsHtml}
+                </div>
+                <div class="nav-buttons">
+                    <button class="nav-btn" id="prevBtn" ${currentIndex === 0 ? 'disabled style="opacity:0.5"' : ''}>◀ 上一题</button>
+                    <button class="nav-btn primary" id="nextBtn">${currentIndex === 29 ? '✨ 完成' : '下一题 ▶'}</button>
+                </div>
+            `;
+            quizBody.innerHTML = template;
+
+            document.querySelectorAll(".option-btn").forEach(btn => {
+                btn.addEventListener("click", (e) => {
+                    const idx = parseInt(btn.dataset.optIndex);
+                    selectOption(currentIndex, idx);
+                });
+            });
+            document.getElementById("prevBtn")?.addEventListener("click", () => {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    renderQuestion();
+                }
+            });
+            document.getElementById("nextBtn")?.addEventListener("click", () => {
+                if (userAnswers[currentIndex] === null) {
+                    alert("现在是答题呢，严肃点！");
+                    return;
+                }
+                if (currentIndex === 29) {
+                    finalizeTest();
+                } else {
+                    currentIndex++;
+                    renderQuestion();
+                }
+            });
+        } else if (currentIndex === 30 && showExtraQuestion) {
+            const extraOpts = [
+                "直接用自己的真名或者习惯的名字", "随便起一个，无所谓",
+                "你鬼使神差，起了一个带有格式的团体名",
+                "你想了一想，起了一个恰好五个字的名字"
+            ];
+            let optionsHtml = "";
+            extraOpts.forEach((opt, idx) => {
+                optionsHtml += `<button class="option-btn" data-opt-index="${idx}">${String.fromCharCode(65+idx)}. ${opt}</button>`;
+            });
+            const template = `
+                <div class="question-text">假如你要在社交平台注册一个账号，你会起什么样的名字？</div>
+                <div class="options-list" id="extraOptions">${optionsHtml}</div>
+                <div class="nav-buttons"><button class="nav-btn primary" id="finishExtra" disabled>确定</button></div>
+            `;
+            quizBody.innerHTML = template;
+            const extraBtns = document.querySelectorAll("#extraOptions .option-btn");
+            extraBtns.forEach(btn => {
+                btn.addEventListener("click", (e) => {
+                    extraBtns.forEach(b => b.style.background = "");
+                    btn.style.background = "#ffedd5";
+                    btn.style.borderColor = "#ff8c42";
+                    const idx = parseInt(btn.dataset.optIndex);
+                    extraAnswer = idx;
+                    document.getElementById("finishExtra").disabled = false;
+                });
+            });
+            document.getElementById("finishExtra").addEventListener("click", () => {
+                if (extraAnswer === null) {
+                    alert("请先选择一个选项～");
+                    return;
+                }
+                let finalPersonality = null;
+                if (memeCount >= 3) {
+                    if (extraAnswer === 2) finalPersonality = "WUDI";
+                    else if (extraAnswer === 3) finalPersonality = "FIVEZ";
+                }
+                if (finalPersonality) {
+                    showResult(finalPersonality);
+                } else {
+                    const top = getTopPersonality();
+                    showResult(top);
+                }
+            });
+        } else {
+            const top = getTopPersonality();
+            showResult(top);
+        }
+    }
+
+    function selectOption(qIdx, optIdx) {
+        userAnswers[qIdx] = optIdx;
+        const addList = SCORING[qIdx][optIdx];
+        addList.forEach(p => {
+            if (scores[p] !== undefined) scores[p] += 2;
+            else console.warn("未知人格", p);
+        });
+        if ((qIdx === 14 || qIdx === 19 || qIdx === 24) && optIdx === 0) virtualCount++;
+        if (isMemeOption(qIdx, optIdx)) memeCount++;
+        renderQuestion();
+    }
+
+    function finalizeTest() {
+        if (virtualCount === 3) { showResult("PJSK"); return; }
+        if (memeCount >= 3) { showExtraQuestion = true; currentIndex = 30; renderQuestion(); return; }
+        const top = getTopPersonality();
+        const sorted = Object.entries(scores).sort((a,b) => b[1]-a[1]);
+        const top3Keys = sorted.slice(0,3).map(item => item[0]);
+        if (top3Keys.includes("MYKN") && top3Keys.includes("LISA") && Math.random() < 0.8) { showResult("YKLS"); return; }
+        showResult(top);
+    }
+
+    function getTopPersonality() {
+        let maxScore = -1, topKey = null;
+        for (let [k, v] of Object.entries(scores)) if (v > maxScore) { maxScore = v; topKey = k; }
+        return topKey;
+    }
+
+    function showResult(personalityKey) {
+        const p = PERSONALITIES[personalityKey];
+        const details = PERSONALITY_DETAILS[personalityKey] || { shortIntro: "简介", detail: "解析", dimensions: [5,5,5,5,5,5] };
+        if (!p) { alert("结果错误，请重试"); location.reload(); return; }
+        const resultHTML = `
+            <div class="result-card">
+                <div class="result-image">
+   <img src="${details.image}" alt="${p.name}" style="width:100%; height:100%; object-fit:cover; border-radius:20px;" ...>
+
+    <div style="display:none; align-items:center; justify-content:center; width:100%; height:100%; background:#f0d5bc; border-radius:50%; font-size:3rem;">${p.emoji}</div>
+</div>
+                <div class="result-title">${p.name}</div>
+                <div class="result-short-intro">${details.shortIntro}</div>
+                <div class="radar-container"><canvas id="radarCanvas" width="300" height="300"></canvas></div>
+                <div class="result-detail">${details.detail}</div>
+                <div>
+                    <button class="share-btn" id="shareBtn">📸 分享结果</button>
+                    <button class="retake-btn" id="retakeBtn">🔄 重新测试</button>
+                </div>
+            </div>
+        `;
+        quizBody.innerHTML = resultHTML;
+        const ctx = document.getElementById('radarCanvas').getContext('2d');
+        if (radarChart) radarChart.destroy();
+        radarChart = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: ["认真", "外向", "感性", "整活", "妈妈度", "反差"],
+                datasets: [{
+                    label: '维度', data: details.dimensions, backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)', borderWidth: 2, pointBackgroundColor: 'rgba(255, 99, 132, 1)',
+                    pointBorderColor: '#fff', pointRadius: 4
+                }]
+            },
+            options: { scales: { r: { beginAtZero: true, max: 10, ticks: { stepSize: 2 } } }, plugins: { tooltip: { enabled: true }, legend: { display: false } } }
+        });
+        document.getElementById("shareBtn")?.addEventListener("click", () => {
+            const text = `【BDTI邦多利人格】我已经确诊为 ${p.name} ${p.emoji}\n你也来试试吧！`;
+            navigator.clipboard.writeText(text).then(() => alert("诊断结果已复制，可以分享给医生了哦~")).catch(() => alert("手动截图分享吧"));
+        });
+        document.getElementById("retakeBtn")?.addEventListener("click", () => { testStarted = false; renderIntro(); });
+    }
+
+    renderIntro();
+</script>
+</body>
+</html>
