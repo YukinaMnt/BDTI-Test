@@ -483,8 +483,8 @@ const QUESTIONS = [
             options: { scales: { r: { beginAtZero: true, max: 10, ticks: { stepSize: 2 } } }, plugins: { tooltip: { enabled: true }, legend: { display: false } } }
         });
         document.getElementById("shareBtn")?.addEventListener("click", () => {
-            const text = `【BDTI邦多利人格】我已经确诊为 ${p.name} ${p.emoji}\n你也来试试吧！`;
-            navigator.clipboard.writeText(text).then(() => alert("诊断结果已复制，可以分享给医生了哦~")).catch(() => alert("手动截图分享吧"));
+            const text = `【BDTI邦多利人格】我已经确诊为 ${p.name} ${p.emoji}\n你也来试试吧！网站地址:https://yukinamnt.github.io/BDTI-Test/`;
+            navigator.clipboard.writeText(text).then(() => alert("诊断结果已复制，可以发送给医生了哦~")).catch(() => alert("手动截图分享吧"));
         });
         document.getElementById("retakeBtn")?.addEventListener("click", () => { testStarted = false; renderIntro(); });
     }
