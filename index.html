@@ -450,8 +450,7 @@ const QUESTIONS = [
         const p = PERSONALITIES[personalityKey];
         const details = PERSONALITY_DETAILS[personalityKey] || { shortIntro: "简介", detail: "解析", dimensions: [5,5,5,5,5,5] };
         if (!p) { alert("结果错误，请重试"); location.reload(); return; }
-       javascript
-const resultHTML = `
+  const resultHTML = `
     <div class="result-card">
         <div class="result-image">
             <img src="${details.image}" alt="${p.name}" style="width:100%; height:100%; object-fit:cover; border-radius:20px;">
