@@ -467,6 +467,7 @@ const QUESTIONS = [
     </div>
 `;
         quizBody.innerHTML = resultHTML;
+        console.log(resultHTML);
         const ctx = document.getElementById('radarCanvas').getContext('2d');
         if (radarChart) radarChart.destroy();
         radarChart = new Chart(ctx, {
