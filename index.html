@@ -450,23 +450,23 @@ const QUESTIONS = [
         const p = PERSONALITIES[personalityKey];
         const details = PERSONALITY_DETAILS[personalityKey] || { shortIntro: "简介", detail: "解析", dimensions: [5,5,5,5,5,5] };
         if (!p) { alert("结果错误，请重试"); location.reload(); return; }
-        const resultHTML = `
-            <div class="result-card">
-                <div class="result-image">
-   <img src="${details.image}" alt="${p.name}" style="width:100%; height:100%; object-fit:cover; border-radius:20px;" >
-
-    <div style="display:none; align-items:center; justify-content:center; width:100%; height:100%; background:#f0d5bc; border-radius:50%; font-size:3rem;">${p.emoji}</div>
-</div>
-                <div class="result-title">${p.name}</div>
-                <div class="result-short-intro">${details.shortIntro}</div>
-                <div class="radar-container"><canvas id="radarCanvas" width="300" height="300"></canvas></div>
-                <div class="result-detail">${details.detail}</div>
-                <div>
-                    <button class="share-btn" id="shareBtn">📸 分享结果</button>
-                    <button class="retake-btn" id="retakeBtn">🔄 重新测试</button>
-                </div>
-            </div>
-        `;
+       javascript
+const resultHTML = `
+    <div class="result-card">
+        <div class="result-image">
+            <img src="${details.image}" alt="${p.name}" style="width:100%; height:100%; object-fit:cover; border-radius:20px;">
+            <div style="display:none; align-items:center; justify-content:center; width:100%; height:100%; background:#f0d5bc; border-radius:50%; font-size:3rem;">${p.emoji}</div>
+        </div>
+        <div class="result-title">${p.name}</div>
+        <div class="result-short-intro">${details.shortIntro}</div>
+        <div class="radar-container"><canvas id="radarCanvas" width="300" height="300"></canvas></div>
+        <div class="result-detail">${details.detail}</div>
+        <div>
+            <button class="share-btn" id="shareBtn">📸 分享结果</button>
+            <button class="retake-btn" id="retakeBtn">🔄 重新测试</button>
+        </div>
+    </div>
+`;
         quizBody.innerHTML = resultHTML;
         const ctx = document.getElementById('radarCanvas').getContext('2d');
         if (radarChart) radarChart.destroy();
