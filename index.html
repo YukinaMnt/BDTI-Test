@@ -402,17 +402,21 @@ const QUESTIONS = [
                     alert("请先选择一个选项～");
                     return;
                 }
-                let finalPersonality = null;
-                if (memeCount >= 3) {
-                    if (extraAnswer === 2) finalPersonality = "WUDI";
-                    else if (extraAnswer === 3) finalPersonality = "FIVEZ";
-                }
-                if (finalPersonality) {
-                    showResult(finalPersonality);
-                } else {
-                    const top = getTopPersonality();
-                    showResult(top);
-                }
+               let finalPersonality = null;
+if (memeCount >= 2) {
+    if (extraAnswer === 2) finalPersonality = "WUDI";
+    else if (extraAnswer === 3) finalPersonality = "FIVEZ";
+} else {
+    // 即使 memeCount 不足，也有10%惊喜概率
+    if (extraAnswer === 2 && Math.random() < 0.1) finalPersonality = "WUDI";
+    else if (extraAnswer === 3 && Math.random() < 0.1) finalPersonality = "FIVEZ";
+}
+if (finalPersonality) {
+    showResult(finalPersonality);
+} else {
+    const top = getTopPersonality();
+    showResult(top);
+}
             });
         } else {
             const top = getTopPersonality();
@@ -432,22 +436,54 @@ const QUESTIONS = [
         renderQuestion();
     }
 
-    function finalizeTest() {
-        if (virtualCount === 3) { showResult("PJSK"); return; }
-        if (memeCount >= 3) { showExtraQuestion = true; currentIndex = 30; renderQuestion(); return; }
-        const top = getTopPersonality();
-        const sorted = Object.entries(scores).sort((a,b) => b[1]-a[1]);
-        const top3Keys = sorted.slice(0,3).map(item => item[0]);
-        if (top3Keys.includes("MYKN") && top3Keys.includes("LISA") && Math.random() < 0.2) { showResult("YKLS"); return; }
-        showResult(top);
+   function finalizeTest() {
+    // PJSK 触发条件放宽：2题A就有20%概率
+    if (virtualCount === 3) {
+        showResult("PJSK");
+        return;
     }
-
-    function getTopPersonality() {
-        let maxScore = -1, topKey = null;
-        for (let [k, v] of Object.entries(scores)) if (v > maxScore) { maxScore = v; topKey = k; }
-        return topKey;
+    if (virtualCount === 2 && Math.random() < 0.1) {
+        showResult("PJSK");
+        return;
     }
+    // 玩梗条件从 >=3 降为 >=2
+    if (memeCount >= 2) {
+        showExtraQuestion = true;
+        currentIndex = 30;
+        renderQuestion();
+        return;
+    }
+    // 正常加权结果
+    const top = getTopPersonality();
+    // YKLS 彩蛋（仍然使用原始得分）
+    const sorted = Object.entries(scores).sort((a,b) => b[1]-a[1]);
+    const top3Keys = sorted.slice(0,3).map(item => item[0]);
+    if (top3Keys.includes("MYKN") && top3Keys.includes("LISA") && Math.random() < 0.2) {
+        showResult("YKLS");
+        return;
+    }
+    showResult(top);
+}
 
+    const PERSONALITY_APPEARANCES = {
+    MYKN:19, LISA:16, ANON:15, MOCA:14, RANA:14, TMRIN:13, ARISA:11, AAO:10, RUI:10,
+    OBIV:9, HLSY:9, KDHR:8, MASK:8, CHU2:8, LOCK:8, YKLS:8, JTTY:7, EVE:7, SOYO:7,
+    SH1RO:6, HINA:5, AMITA:4, OTae:4, HKN:4, UIKA:4, MRAN:4, NYAM:3, MMSK:3, MGGM:3
+};
+
+function getTopPersonality() {
+    let maxWeightedScore = -1;
+    let topKey = null;
+    for (let [k, rawScore] of Object.entries(scores)) {
+        const appearances = PERSONALITY_APPEARANCES[k] || 1;
+        const weightedScore = rawScore / appearances;
+        if (weightedScore > maxWeightedScore) {
+            maxWeightedScore = weightedScore;
+            topKey = k;
+        }
+    }
+    return topKey;
+}
     function showResult(personalityKey) {
         const p = PERSONALITIES[personalityKey];
         const details = PERSONALITY_DETAILS[personalityKey] || { shortIntro: "简介", detail: "解析", dimensions: [5,5,5,5,5,5] };
