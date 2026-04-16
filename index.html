@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>BDTI · 邦多利人格测试 By yukinamnt AKA Wiz4Rd</title>
+    <title>BDTI · 邦多利人格测试 By YukinaMnt</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -116,6 +116,7 @@
         MGGM: { name: "MGGM（社长）", emoji: "👔", desc: "混沌制造者，爆典王，武装保卫中国市场，打破常规。" },
         YKLS: { name: "YKLS", emoji: "💞", desc: "青梅竹马，老夫老妻，互相理解，反差互补。不必多言。" },
         JTTY: { name: "JTTY（大蛇丸）", emoji: "🐍", desc: "八岐大蛇，年轻被争议，努力证明自己，与Liyuu有交集。" },
+        RANA: { name: "RANA（要乐奈）", emoji: "🐱", desc: "自由野猫，凭兴趣行动，不被束缚，话少但一针见血。" },
         PJSK: { name: "PJSK（啤酒烧烤）", emoji: "🎤", desc: "虚拟歌姬，跨次元，世界系。暗示你也许更适合隔壁烤！" },
         WUDI: { name: "WD-XX（无敌XX大王）", emoji: "💪", desc: "中二自信爆棚，实则普通，搞笑担当。B站整活格式。" },
         FIVEZ: { name: "5ZSR（五字神人）", emoji: "🔮", desc: "神秘网络迷因，乐子人，名字格式如“社恐小燐子”。" }
@@ -152,6 +153,7 @@
     MGGM: { shortIntro: "武装保卫中国市场！", detail: "你就像木谷高明一样，是那种“不按常理出牌”的混乱制造者。你金句频出，总是爆典，常常做出让所有人意想不到的决定。你曾武装保卫中国市场，救邦多利于危难之中。你是商业奇才，也是规则的破坏者。你是那种“让人又崇拜又害怕”的存在。", dimensions: [5,7,4,10,3,9], image: "mggm.png" },
     YKLS: { shortIntro: "你可能只是喜欢磕小情侣罢了", detail: "也许你只是想像慈爱的老父亲一样看着，她们性格互补——一个高冷认真，一个温柔包容；一个压力山大，一个默默解压。她们的故事没有轰轰烈烈，只有细水长流的陪伴。BanG Dream也许就是这样美好的企划吧。", dimensions: [7,6,8,3,9,7], image: "ykls.png" },
     JTTY: { shortIntro: "我不是恶魔。", detail: "你就像进藤天音一样，是那种“年纪轻轻却背负争议”的人。你被称为“八岐大蛇”，但你从未放弃，一直努力证明自己。你和Liyuu的交集让人津津乐道。你是那种“在质疑中成长，用实力回击”的倔强灵魂。", dimensions: [7,6,7,6,5,6], image: "jtty.png" },
+    RANA: { shortIntro: "自由自在的野猫", detail: "你就像要乐奈一样，是一只自由散漫的野猫。你只凭兴趣行动，对不喜欢的事情超级冷淡，但一旦遇到感兴趣的东西就会沉迷其中。你话不多，但每次开口都能一针见血。你是那种靠天赋和直觉就能把事情做好的野生艺术家。", dimensions: [3,3,5,7,2,8], image: "rana.png" },
     PJSK: { shortIntro: "你可能来错地方了。", detail: "你得到了隐藏人格“Project Sekai”！看起来你对虚拟歌姬、电子合成音有着特别的偏好，甚至可能是个“烤批”（PJSK玩家）。你或许误入了邦邦的世界，但你的心属于那个由思念构成的“SEKAI”。没关系，邦多利的世界也欢迎你，只是下次测试记得选对入口哦。", dimensions: [5,5,7,6,4,8], image: "pjsk.png" },
     WUDI: { shortIntro: "五字神人的时代已经过去，现在是无敌大王的天下。", detail: "你得到了隐藏人格“无敌XX大王”！你是一个自信到中二的人，喜欢在名字里加上“无敌大王”，仿佛这样就能变强。虽然你是个平凡的普通人，但你的乐观和天赋让你成为大家的开心果。无敌大王的时代可以沸腾期待。	", dimensions: [4,8,6,9,5,9], image: "wudi.png" },
     FIVEZ: { shortIntro: "鉴定为五字神人", detail: "你得到了隐藏人格“五字神人”！你是互联网迷因的化身，名字恰好是五个字。你热衷于整活，喜欢爆炸性交流，是邦多利区里的神秘力量。也许你是那种“现实中唯唯诺诺，网络上放飞自我”的人。", dimensions: [4,7,5,9,4,9], image: "5zsr.png" }
@@ -270,7 +272,7 @@ const QUESTIONS = [
     let userAnswers = new Array(30).fill(null);
     let currentIndex = 0;
     let scores = {};
-    const allPersonalityKeys = ["MYKN","LISA","AAO","OTae","HLSY","HKN","MASK","CHU2","LOCK","AMITA","ARISA","MMSK","TMRIN","UIKA","OBIV","TKSM","MRAN","SOYO","MOCA","ANON","NYAM","EVE","RUI","SH1RO","HINA","KDHR","MGGM","YKLS","JTTY"];
+    const allPersonalityKeys = ["MYKN","LISA","AAO","OTae","HLSY","HKN","MASK","CHU2","LOCK","AMITA","ARISA","MMSK","TMRIN","UIKA","OBIV","TKSM","MRAN","SOYO","MOCA","ANON","NYAM","EVE","RUI","SH1RO","HINA","KDHR","MGGM","YKLS","JTTY","RANA"];
     allPersonalityKeys.forEach(k => scores[k] = 0);
     let virtualCount = 0;
     let memeCount = 0;
@@ -482,7 +484,7 @@ const QUESTIONS = [
             options: { scales: { r: { beginAtZero: true, max: 10, ticks: { stepSize: 2 } } }, plugins: { tooltip: { enabled: true }, legend: { display: false } } }
         });
         document.getElementById("shareBtn")?.addEventListener("click", () => {
-            const text = `【BDTI邦多利人格】我已经确诊为 ${p.name} ${p.emoji}\n你也来试试吧！网站地址:https://yukinamnt.github.io/BDTI-Test/`;
+            const text = `【BDTI邦多利人格测试】我已经确诊为 ${p.name} ${p.emoji}\n你也来试试吧！网站地址:https://yukinamnt.github.io/BDTI-Test/`;
             navigator.clipboard.writeText(text).then(() => alert("诊断结果已复制，可以发送给医生了哦~")).catch(() => alert("手动截图分享吧"));
         });
         document.getElementById("retakeBtn")?.addEventListener("click", () => { testStarted = false; renderIntro(); });
