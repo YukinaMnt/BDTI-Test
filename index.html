@@ -472,13 +472,11 @@ if (finalPersonality) {
 };
 
 function getTopPersonality() {
-    let maxWeightedScore = -1;
+    let maxScore = -1;
     let topKey = null;
-    for (let [k, rawScore] of Object.entries(scores)) {
-        const appearances = PERSONALITY_APPEARANCES[k] || 1;
-        const weightedScore = rawScore / appearances;
-        if (weightedScore > maxWeightedScore) {
-            maxWeightedScore = weightedScore;
+    for (let [k, v] of Object.entries(scores)) {
+        if (v > maxScore) {
+            maxScore = v;
             topKey = k;
         }
     }
