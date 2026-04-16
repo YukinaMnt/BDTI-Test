@@ -438,7 +438,7 @@ const QUESTIONS = [
         const top = getTopPersonality();
         const sorted = Object.entries(scores).sort((a,b) => b[1]-a[1]);
         const top3Keys = sorted.slice(0,3).map(item => item[0]);
-        if (top3Keys.includes("MYKN") && top3Keys.includes("LISA") && Math.random() < 0.8) { showResult("YKLS"); return; }
+        if (top3Keys.includes("MYKN") && top3Keys.includes("LISA") && Math.random() < 0.2) { showResult("YKLS"); return; }
         showResult(top);
     }
 
